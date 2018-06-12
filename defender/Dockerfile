@@ -1,12 +1,25 @@
 FROM ubuntu:bionic
 ENV S6_OVERLAY_VERSION v1.21.4.0
+ARG GITHUB_TOKEN
 
 ADD https://github.com/just-containers/s6-overlay/releases/download/$S6_OVERLAY_VERSION/s6-overlay-amd64.tar.gz /tmp/
 RUN tar xzf /tmp/s6-overlay-amd64.tar.gz -C /
 
+# RUN curl -s https://packagecloud.io/install/repositories/linyows/octopass/script.deb.sh | bash
 RUN apt update
-RUN apt -y install apache2 openssh-server rsyslog
+RUN apt -y install apache2 openssh-server rsyslog curl wget
 RUN mkdir /etc/services.d/apache /etc/services.d/sshd /etc/services.d/00rsyslog
+RUN apt -y install libcurl3-gnutls libjansson4
+## FIXME: update install via repo when added bionic repo
+RUN wget --content-disposition https://packagecloud.io/linyows/octopass/packages/ubuntu/xenial/octopass_0.4.1-1_amd64.deb/download.deb && \
+    dpkg -i ./octopass_0.4.1-1_amd64.deb && rm -f *.deb
+
+ADD octopass.conf /etc/octopass.conf
+RUN sed -i.old "s/!!!replacehere!!!/$GITHUB_TOKEN/" /etc/octopass.conf
+RUN echo "AuthorizedKeysCommand /usr/bin/octopass" >> /etc/ssh/sshd_config
+RUN echo "AuthorizedKeysCommandUser root" >> /etc/ssh/sshd_config
+ADD pam.d-sshd /etc/pam.d/sshd
+ADD nsswitch.conf /etc/nsswitch.conf
 
 ADD rsyslog-run /etc/services.d/00rsyslog/run
 ADD sshd-run /etc/services.d/sshd/run
@@ -15,4 +28,6 @@ ADD initalizers.sh /etc/cont-init.d/initalizers.sh
 
 RUN chmod a+x /etc/services.d/*/* /etc/cont-init.d/*
 
+EXPOSE 80
+EXPOSE 22
 ENTRYPOINT ["/init"]
