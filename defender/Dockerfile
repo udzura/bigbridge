@@ -10,8 +10,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 # RUN curl -s https://packagecloud.io/install/repositories/linyows/octopass/script.deb.sh | bash
 RUN apt update
 RUN apt -y install tzdata
-RUN apt -y install apache2 openssh-server rsyslog curl wget netcat php php-mysqli mysql-server
-RUN apt -y install vim
+RUN apt -y install apache2 openssh-server rsyslog curl wget netcat php php-mysqli mysql-server sudo
+RUN apt -y install vim iproute2
 RUN mkdir /etc/services.d/apache /etc/services.d/sshd /etc/services.d/00rsyslog /etc/services.d/mysql
 RUN apt -y install libcurl3-gnutls libjansson4
 ## FIXME: update install via repo when added bionic repo
@@ -36,6 +36,8 @@ RUN chmod a+x /etc/services.d/*/* /etc/cont-init.d/*
 ADD ./app /var/www/html
 RUN chown 2000:2000 -R /var/www/html
 RUN chmod g+w -R /var/www/html
+RUN echo '%ohashi-con ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/octopass
+RUN chmod 440 /etc/sudoers.d/octopass
 
 EXPOSE 80
 EXPOSE 22
