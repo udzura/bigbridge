@@ -1,6 +1,5 @@
 FROM ubuntu:bionic
 ENV S6_OVERLAY_VERSION v1.21.4.0
-ARG GITHUB_TOKEN
 
 ADD https://github.com/just-containers/s6-overlay/releases/download/$S6_OVERLAY_VERSION/s6-overlay-amd64.tar.gz /tmp/
 RUN tar xzf /tmp/s6-overlay-amd64.tar.gz -C /
@@ -19,7 +18,6 @@ RUN wget --content-disposition https://packagecloud.io/linyows/octopass/packages
     dpkg -i ./octopass_0.4.1-1_amd64.deb && rm -f *.deb
 
 ADD octopass.conf /etc/octopass.conf
-RUN sed -i.old "s/!!!replacehere!!!/$GITHUB_TOKEN/" /etc/octopass.conf
 RUN echo "AuthorizedKeysCommand /usr/bin/octopass" >> /etc/ssh/sshd_config
 RUN echo "AuthorizedKeysCommandUser root" >> /etc/ssh/sshd_config
 ADD pam.d-sshd /etc/pam.d/sshd
@@ -41,4 +39,5 @@ RUN chmod 440 /etc/sudoers.d/octopass
 
 EXPOSE 80
 EXPOSE 22
+
 ENTRYPOINT ["/init"]

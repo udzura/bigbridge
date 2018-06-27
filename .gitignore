@@ -12,3 +12,5 @@
 *.out
 
 attacker/attacker
+
+.env

@@ -1,5 +1,13 @@
-#!/bin/bash
+#!/usr/bin/with-contenv bash
 set -x
+
+if [ x"$GITHUB_TOKEN" = x"" ]; then
+  echo "!!! env var GITHUB_TOKEN should be set !!!"
+  exit 127
+fi
+
+sed -i.old "s/!!!replacehere!!!/$GITHUB_TOKEN/" /etc/octopass.conf
+rm -rf /var/cache/octopass/*
 
 mkdir /run/sshd
 mkdir /var/run/mysqld
