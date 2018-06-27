@@ -1,9 +1,9 @@
 version: '3'
 services:
   attacker:
-    image: "udzura/ohashi-con-attacker:latest"
+    image: "udzura/bigbridge-attacker:latest"
   defender:
-    image: "udzura/ohashi-con-defender:latest"
+    image: "udzura/bigbridge-defender:latest"
     ports:
      - "127.0.0.1:12222:22"
      - "127.0.0.1:18080:80"

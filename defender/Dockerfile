@@ -36,7 +36,7 @@ RUN chmod a+x /etc/services.d/*/* /etc/cont-init.d/*
 ADD ./app /var/www/html
 RUN chown 2000:2000 -R /var/www/html
 RUN chmod g+w -R /var/www/html
-RUN echo '%ohashi-con ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/octopass
+RUN echo '%bigbridge ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/octopass
 RUN chmod 440 /etc/sudoers.d/octopass
 
 EXPOSE 80
