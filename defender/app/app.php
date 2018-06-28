@@ -11,32 +11,55 @@ if ($my === false) {
   echo "!!! DB connection failed";
 }
 
-//投稿がある場合のみ処理を行う
 if ( $_SERVER["REQUEST_METHOD"] === "POST" ) {
-  if ( !form_exist($_POST["name"]) )
-    $errors["name"] = "名前を入力してください";
-  if ( !form_exist($_POST["message"]) )
-    $errors["message"] = "コメントを入力してください";
-
-  if( count($errors) === 0 ){
-    $query = "INSERT INTO messages ( "
-      . "    username , "
-      . "    message , "
-      . "    password , "
-      . "    filepath "
-      . " ) VALUES ( "
-      . "'" . $_POST["name"] ."', "
-      . "'" . $_POST["message"] ."', "
-      . "'" . $_POST["password"] ."', "
-      . "'" . $_POST["filepath"] ."' "
-      ." ) ";
+  if ( $_POST["mode"] === "delete" ) {
+    $query = "select count(*) from messages "
+      . "where id = " . $_POST["mid"]
+      . " and password = '" . $_POST["password"]
+      . "'";
 
     $res = mysqli_query( $my, $query );
-
-    if ( $res !== false ) {
-      $message = '書き込みに成功しました';
+    if ( $res === 0 ) {
+      $message = '削除に失敗しました';
     }else{
-      $message = '書き込みに失敗しました';
+      $query = "delete from messages "
+        . "where id = " . $_POST["mid"]
+        . " and password = '" . $_POST["password"]
+        . "' limit 1";
+
+      $res = mysqli_query( $my, $query );
+      if ( $res !== false ) {
+        $message = '削除に成功しました';
+      }else{
+        $message = '削除に失敗しました';
+      }
+    }
+  } else {
+    if ( !form_exist($_POST["name"]) )
+      $errors["name"] = "名前を入力してください";
+    if ( !form_exist($_POST["message"]) )
+      $errors["message"] = "コメントを入力してください";
+
+    if( count($errors) === 0 ){
+      $query = "INSERT INTO messages ( "
+        . "    username , "
+        . "    message , "
+        . "    password , "
+        . "    filepath "
+        . " ) VALUES ( "
+        . "'" . $_POST["name"] ."', "
+        . "'" . $_POST["message"] ."', "
+        . "'" . $_POST["password"] ."', "
+        . "'" . $_POST["filepath"] ."' "
+        ." ) ";
+
+      $res = mysqli_query( $my, $query );
+
+      if ( $res !== false ) {
+        $message = '書き込みに成功しました';
+      }else{
+        $message = '書き込みに失敗しました';
+      }
     }
   }
 }
@@ -63,6 +86,7 @@ mysqli_close( $my );
             <?php echo $errors["message"]; ?><br>
         削除パスワード：<input type="password" name="password" > <br>
         添付画像：<input type="file" name="image" >
+        <input type="hidden" name="mode" value="post">
 <br>
           <input type="submit" name="send" value="投稿する" >
         </form>
@@ -80,6 +104,12 @@ mysqli_close( $my );
 <?php if ( form_exist($row["filepath"]) ): ?>
 <img src="<?php echo $row["filepath"] ?>" >
 <?php endif;?>
+<form method="post" action="">
+  <input type="hidden" name="mode" value="delete">
+  <input type="hidden" name="mid" value="<?php echo $row["id"] ?>">
+  <input type="password" name="password">
+  * <input type="submit" name="send" value="削除" >
+</form>
 <hr>
 <?php endforeach;?>
 
