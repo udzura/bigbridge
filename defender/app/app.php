@@ -6,6 +6,11 @@ function form_exist($v){
 $errors = array();
 $message = "";
 
+$my = mysqli_connect( 'localhost', 'bigbridge', 'bigbridge0630', 'testapp' );
+if ($my === false) {
+  echo "!!! DB connection failed";
+}
+
 //投稿がある場合のみ処理を行う
 if ( $_SERVER["REQUEST_METHOD"] === "POST" ) {
   if ( !form_exist($_POST["name"]) )
@@ -14,19 +19,34 @@ if ( $_SERVER["REQUEST_METHOD"] === "POST" ) {
     $errors["message"] = "コメントを入力してください";
 
   if( count($errors) === 0 ){
-    $message = "書き込みに成功しました。";
+    $query = "INSERT INTO messages ( "
+      . "    username , "
+      . "    message , "
+      . "    password , "
+      . "    filepath "
+      . " ) VALUES ( "
+      . "'" . $_POST["name"] ."', "
+      . "'" . $_POST["message"] ."', "
+      . "'" . $_POST["password"] ."', "
+      . "'" . $_POST["filepath"] ."' "
+      ." ) ";
+
+    $res = mysqli_query( $my, $query );
+
+    if ( $res !== false ) {
+      $message = '書き込みに成功しました';
+    }else{
+      $message = '書き込みに失敗しました';
+    }
   }
 }
-$dataArr = array();
-/* while( $res = fgets( $fp)){ */
-/*     $tmp = explode("\t",$res); */
-/*     $arr = array( */
-/*         "name"=>$tmp[0], */
-/*         "comment"=>$tmp[1] */
-/*     ); */
-/*     $dataArr[]= $arr; */
-/* } */
+$data = array();
+$res = mysqli_query($my, "select id, username, message, password, filepath from messages order by id asc;");
+while( $row = mysqli_fetch_assoc( $res ) ) {
+  array_push($data, $row);
+}
 
+mysqli_close( $my );
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -47,9 +67,22 @@ $dataArr = array();
           <input type="submit" name="send" value="投稿する" >
         </form>
         <dl>
-         <?php foreach( $dataArr as $data ):?>
-         <p><span><?php echo $data["name"]; ?></span>:<span><?php echo $data["comment"]; ?></span></p>
-        <?php endforeach;?>
+
+<h2>投稿一覧</h2>
+
+<?php if ( count($data) === 0): ?>
+投稿がありません
+<?php endif;?>
+
+<?php foreach( $data as $key => $row):?>
+  <p><span>投稿: <?php echo $row["username"]; ?></span></p>
+<p><?php echo str_replace(array("\r\n", "\n", "\r"), "<br>", $row["message"]); ?></p>
+<?php if ( form_exist($row["filepath"]) ): ?>
+<img src="<?php echo $row["filepath"] ?>" >
+<?php endif;?>
+<hr>
+<?php endforeach;?>
+
 </dl>
     </body>
 </html>
