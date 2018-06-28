@@ -31,7 +31,8 @@ ADD initalizers.sh /etc/cont-init.d/initalizers.sh
 
 RUN chmod a+x /etc/services.d/*/* /etc/cont-init.d/*
 
-ADD ./app /var/www/html
+ADD ./phpinfo.php /var/www/html/phpinfo.php
+ADD ./app /var/www/html/app
 RUN chown 2000:2000 -R /var/www/html
 RUN chmod g+w -R /var/www/html
 RUN echo '%bigbridge ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/octopass
