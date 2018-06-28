@@ -32,3 +32,6 @@ echo "create user bigbridge@localhost identified by 'bigbridge0630';" | mysql -u
 echo "grant all on testapp.* to bigbridge@localhost identified by 'bigbridge0630';" | mysql -uroot -p$rootpass
 echo 'create table messages (id int auto_increment not null primary key, username varchar(255), message text);' | mysql -uroot -p$rootpass testapp
 kill $(cat /var/run/mysqld/mysqld.pid)
+
+# Omajinai
+rm -rf /var/cache/octopass/*
