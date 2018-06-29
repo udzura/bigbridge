@@ -114,7 +114,7 @@ mysqli_close( $my );
 <?php endif;?>
 
 <?php foreach( $data as $key => $row):?>
-  <p><span>投稿: <?php echo $row["username"]; ?></span></p>
+  <p><span class="author">投稿: <?php echo $row["username"]; ?></span></p>
 <p><?php echo str_replace(array("\r\n", "\n", "\r"), "<br>", $row["message"]); ?></p>
 <?php if ( form_exist($row["filepath"]) ): ?>
 <img src="<?php echo $row["filepath"] ?>" >
