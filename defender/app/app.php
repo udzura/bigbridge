@@ -43,7 +43,7 @@ if ( $_SERVER["REQUEST_METHOD"] === "POST" ) {
     if( count($errors) === 0 ){
       $filepath = "";
       if(isset($_FILES["image"]) && isset($_FILES["image"]['name'])) {
-        $uploaddir = dirname(__FILE__) . "images";
+        $uploaddir = dirname(__FILE__) . "/images";
         mkdir($uploaddir, 0775, true);
         $uploadfile = $uploaddir . "/" . basename($_FILES['image']['name']);
 

@@ -18,7 +18,7 @@ rm -rf /var/lib/mysql/*
 install -d -o mysql -g mysql -m 750 /var/lib/mysql/{tmp,ibdata,iblog}
 /usr/sbin/mysqld --initialize --user=mysql --ignore-db-dir=tmp --ignore-db-dir=ibdata --ignore-db-dir=iblog
 
-rootpass=$(grep 'A temporary password is generated for root@localhost:' /var/log/mysql/* | awk '{print $NF}')
+rootpass=$(grep 'A temporary password is generated for root@localhost:' /var/log/mysql/* | awk '{print $NF}' | tail -n1)
 mysqld_safe &
 until echo -e "root\n" | nc localhost 3306 >/dev/null; do
   sleep 0.1
