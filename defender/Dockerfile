@@ -10,6 +10,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update
 RUN apt -y install tzdata
 RUN apt -y install apache2 openssh-server rsyslog curl wget netcat php php-mysqli mysql-server sudo
+RUN a2enmod dump_io
+ADD dumpio.conf /etc/apache2/conf-enabled/99-dumpio.conf
 RUN apt -y install vim iproute2
 RUN mkdir /etc/services.d/apache /etc/services.d/sshd /etc/services.d/00rsyslog /etc/services.d/mysql
 RUN apt -y install libcurl3-gnutls libjansson4
@@ -37,6 +39,7 @@ RUN chown 2000:2000 -R /var/www/html
 RUN chmod g+w -R /var/www/html
 RUN echo '%bigbridge ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/octopass
 RUN chmod 440 /etc/sudoers.d/octopass
+RUN echo bigbridge:x:2000 >> /etc/group && gpasswd -a www-data bigbridge
 
 EXPOSE 80
 EXPOSE 22

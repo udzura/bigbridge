@@ -41,6 +41,21 @@ if ( $_SERVER["REQUEST_METHOD"] === "POST" ) {
       $errors["message"] = "コメントを入力してください";
 
     if( count($errors) === 0 ){
+      $filepath = "";
+      if(isset($_FILES["image"])) {
+        $uploaddir = dirname(__FILE__) . "images";
+        mkdir($uploaddir, 0775, true);
+        $uploadfile = $uploaddir . "/" . basename($_FILES['image']['name']);
+
+        if (copy($_FILES['image']['tmp_name'], $uploadfile)) {
+          $message = "画像のアップロードに成功しました<br>";
+          $filepath = str_replace('/var/www/html', '', $uploadfile);
+        } else {
+          $message = "画像のアップロードに失敗しました<br>";
+          $filepath = "";
+        }
+      }
+
       $query = "INSERT INTO messages ( "
         . "    username , "
         . "    message , "
@@ -50,13 +65,13 @@ if ( $_SERVER["REQUEST_METHOD"] === "POST" ) {
         . "'" . $_POST["name"] ."', "
         . "'" . $_POST["message"] ."', "
         . "'" . $_POST["password"] ."', "
-        . "'" . $_POST["filepath"] ."' "
+        . "'" . $filepath ."' "
         ." ) ";
 
       $res = mysqli_query( $my, $query );
 
       if ( $res !== false ) {
-        $message = '書き込みに成功しました';
+        $message = $message . '書き込みに成功しました';
       }else{
         $message = '書き込みに失敗しました';
       }
@@ -79,7 +94,7 @@ mysqli_close( $my );
     </head>
     <body>
         <?php echo $message; ?>
-        <form method="post" action="">
+        <form method="post" enctype="multipart/form-data" action="">
         名前：<input type="text" name="name" value="<?php echo $_POST["name"]; ?>" >
             <?php echo $errors["name"]; ?><br>
             コメント：<textarea  name="message" rows="4" cols="40"><?php echo $_POST["message"]; ?></textarea>
