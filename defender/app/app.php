@@ -42,7 +42,7 @@ if ( $_SERVER["REQUEST_METHOD"] === "POST" ) {
 
     if( count($errors) === 0 ){
       $filepath = "";
-      if(isset($_FILES["image"])) {
+      if(isset($_FILES["image"]) && isset($_FILES["image"]['name'])) {
         $uploaddir = dirname(__FILE__) . "images";
         mkdir($uploaddir, 0775, true);
         $uploadfile = $uploaddir . "/" . basename($_FILES['image']['name']);
@@ -63,7 +63,7 @@ if ( $_SERVER["REQUEST_METHOD"] === "POST" ) {
         . "    filepath "
         . " ) VALUES ( "
         . "'" . $_POST["name"] ."', "
-        . "'" . $_POST["message"] ."', "
+        . "'" . mysqli_real_escape_string($my, $_POST["message"]) ."', "
         . "'" . $_POST["password"] ."', "
         . "'" . $filepath ."' "
         ." ) ";
@@ -94,7 +94,7 @@ mysqli_close( $my );
     </head>
     <body>
         <?php echo $message; ?>
-        <form method="post" enctype="multipart/form-data" action="">
+        <form method="post" enctype="multipart/form-data" id="main" action="">
         名前：<input type="text" name="name" value="<?php echo $_POST["name"]; ?>" >
             <?php echo $errors["name"]; ?><br>
             コメント：<textarea  name="message" rows="4" cols="40"><?php echo $_POST["message"]; ?></textarea>
@@ -119,7 +119,7 @@ mysqli_close( $my );
 <?php if ( form_exist($row["filepath"]) ): ?>
 <img src="<?php echo $row["filepath"] ?>" >
 <?php endif;?>
-<form method="post" action="">
+<form method="post" action="" id="delete-<?php echo $row["id"] ?>">
   <input type="hidden" name="mode" value="delete">
   <input type="hidden" name="mid" value="<?php echo $row["id"] ?>">
   del key: <input type="password" name="password">

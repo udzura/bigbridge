@@ -6,24 +6,58 @@ import (
 	"os"
 )
 
+var stage = ""
+var target = ""
+
+func debug(format string, arg ...interface{}) {
+	if os.Getenv("DEBUG") == "1" {
+		fmt.Printf(format, arg...)
+	}
+}
+
 func main() {
-	bow := surf.NewBrowser()
-	err := bow.Open("http://localhost:18080/app.php")
-	if err != nil {
-		panic(err)
+	if len(os.Args) < 3 {
+		panic("Usage: attacker [STAGE_NR] [TARGET_HOST]")
+	}
+	stage = os.Args[1]
+	target = os.Args[2]
+	var err error
+
+	switch stage {
+	case "1":
+		err = runStage1()
+	default:
+		panic("Invalid stage")
 	}
 
-	err = bow.Open("http://localhost:18080/app.php?name=udzura<script>alert(1);</script>")
-	if err != nil {
-		panic(err)
-	}
-	found := bow.Find("script").Size()
-	fmt.Printf("Script element size: %v\n", found)
-	if found == 0 {
-		fmt.Printf("Defence success!!! Omedetou!!!!!!!!!!!!\n")
+	if err == nil {
+		fmt.Printf("防衛に成功しました!!!\n")
 	} else {
-		fmt.Printf("Attack success!!!\n")
+		fmt.Printf("防衛に失敗しています:\n%s", err.Error())
 		os.Exit(1)
 	}
 
+}
+
+func runStage1() error {
+	bow := surf.NewBrowser()
+	err := bow.Open(target + "/app/app.php")
+	if err != nil {
+		return err
+	}
+
+	loginForm, _ := bow.Form("[id='main']")
+	loginForm.Input("name", "test-user")
+	loginForm.Input("message", "Hello\n<script>alert('3np1+!');</script>")
+	if err := loginForm.Submit(); err != nil {
+		return err
+	}
+
+	found := bow.Find("script").Size()
+	debug("Script element size: %v\n", found)
+	if found == 0 {
+		return nil
+	} else {
+		return fmt.Errorf("攻撃が成功しました!!!\n防衛のためにコンテナを修正してください。\n")
+	}
 }
