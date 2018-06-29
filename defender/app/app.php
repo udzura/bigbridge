@@ -13,13 +13,13 @@ if ($my === false) {
 
 if ( $_SERVER["REQUEST_METHOD"] === "POST" ) {
   if ( $_POST["mode"] === "delete" ) {
-    $query = "select count(*) from messages "
+    $query = "select * from messages "
       . "where id = " . $_POST["mid"]
       . " and password = '" . $_POST["password"]
       . "'";
 
     $res = mysqli_query( $my, $query );
-    if ( $res === 0 ) {
+    if ( mysqli_num_rows($res) === 0 ) {
       $message = '削除に失敗しました';
     }else{
       $query = "delete from messages "
@@ -107,8 +107,8 @@ mysqli_close( $my );
 <form method="post" action="">
   <input type="hidden" name="mode" value="delete">
   <input type="hidden" name="mid" value="<?php echo $row["id"] ?>">
-  <input type="password" name="password">
-  * <input type="submit" name="send" value="削除" >
+  del key: <input type="password" name="password">
+  <input type="submit" name="send" value="削除" >
 </form>
 <hr>
 <?php endforeach;?>
