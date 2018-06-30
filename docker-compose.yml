@@ -5,8 +5,8 @@ services:
   defender:
     image: "udzura/bigbridge-defender:latest"
     ports:
-     - "127.0.0.1:12222:22"
-     - "127.0.0.1:18080:80"
+     - "0.0.0.0:12222:22"
+     - "0.0.0.0:18080:80"
     env_file: .env
     environment:
     - GITHUB_TOKEN
