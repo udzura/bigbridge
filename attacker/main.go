@@ -10,6 +10,8 @@ import (
 var stage = ""
 var target = "http://defender"
 
+const ua string = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36"
+
 func debug(format string, arg ...interface{}) {
 	if os.Getenv("DEBUG") == "1" {
 		fmt.Printf(format, arg...)
@@ -71,6 +73,7 @@ func runStage1() error {
 
 func runStage2() error {
 	bow := surf.NewBrowser()
+	bow.SetUserAgent(ua)
 	err := bow.Open(target + "/app/app.php")
 	if err != nil {
 		return err
@@ -116,6 +119,7 @@ func runStage2() error {
 
 func runStage3() error {
 	bow := surf.NewBrowser()
+	bow.SetUserAgent(ua)
 	err := bow.Open(target + "/app/app.php")
 	if err != nil {
 		return err
